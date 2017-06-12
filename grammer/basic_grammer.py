@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
 '''变量'''
 def variable():
     a = 100; b = True; c = 'string'
@@ -43,8 +42,6 @@ def print_list(cl):
     print(cl.pop(),cl)  #Tracy ['Micheal', 'Jack', 'Bob']
     cl[1] = 123; print(cl)   #['Micheal', 123, 'Bob']
 
-#print_list(classmates)
-
 #tuple:另一种有序列表。tuple和list非常类似，但是tuple一旦初始化就不能修改
 t1 = ('a',) #定义一个元素的tuple要用 , 标明
 t2 = ('a', 'b', ['X', 'Y'])
@@ -52,6 +49,77 @@ def print_tuple(t):
     t[2][0] = 1 #('a', 'b', [1, 'Y']) 修改了tuple里的list
     #t[1] = 'a' ##TypeError: 'tuple' object does not support item assignment
     print(t)
-print_tuple(t2)
 
+#条件判断
+def print_age(age):
+    print('you age is', age)
+    if age >= 18:
+        print('adult')
+    elif age >= 6:
+        print('teenager')
+    else:
+        print('kid')
 
+#循环 - break,continue
+#for
+def sum_n(n):
+    sum = 0
+    for x in list(range(n)):    #range(10)生成整数序列 #list()转换成list
+        if x == 100:
+            continue
+        sum += x
+    return sum
+list(range(10))  #[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+#while
+sum = 0
+n = 99
+while n > 0:
+    sum = sum + n
+    n = n - 2
+    if sum > 1000:
+        break
+
+#dict和set
+d = {'Michael': 95, 'Bob': 75, 'Tracy': 85}
+d.get('Bob')    #75
+d['Bob']    #75
+
+#set和dict类似，也是一组key的集合，但不存储value。由于key不能重复，所以，在set中，没有重复的key。
+#set可以看成数学意义上的无序和无重复元素的集合，因此，两个set可以做数学意义上的交集、并集等操作：
+s1 = set([1,2,3])
+s2 = set([2,3,4])
+s1 & s2  #{2, 3}
+s1 | s2  #{1, 2, 3, 4}
+s1.add(5)   #{1, 2, 3, 5}
+s1.remove(3)    #{1, 2, 5}
+
+#函数
+#1.pass
+def fun():
+    pass #占位
+
+#2.默认参数必须指向不变对象！例子
+def add_end(L=[]):
+    L.append('END')
+    return L
+add_end()    #['END']
+add_end()    #['END', 'END']
+#正确实现
+def add_end_correct(L=None):
+    if L is None:
+        L = []
+    L.append('END')
+    return L
+add_end_correct()   #['END']
+add_end_correct()   #['END']
+
+#3.可变参数
+def calc(*numbers):
+    sum = 0
+    for n in numbers:
+        sum = sum + n * n
+    return sum
+nums = [1, 2, 3]
+calc(*nums)     #*nums表示把nums这个list的所有元素作为可变参数传进去
+                #可变参数允许你传入0个或任意个参数，这些可变参数在函数调用时自动组装为一个tuple
