@@ -114,7 +114,7 @@ def add_end_correct(L=None):
 add_end_correct()   #['END']
 add_end_correct()   #['END']
 
-#3.可变参数
+#3.可变参数：传入参数的个数是可以变化的
 def calc(*numbers):
     sum = 0
     for n in numbers:
@@ -123,3 +123,40 @@ def calc(*numbers):
 nums = [1, 2, 3]
 calc(*nums)     #*nums表示把nums这个list的所有元素作为可变参数传进去
                 #可变参数允许你传入0个或任意个参数，这些可变参数在函数调用时自动组装为一个tuple
+
+#4.关键字参数
+#关键字参数允许你传入0个或任意个含参数名的参数，这些关键字参数在函数内部自动组装为一个dict
+def person(name,age,**kw):
+    print('name:', name, 'age', age, kw )
+
+#person('Michael', 30, city='Beijing', job='Engineer')    #name: Michael age 30 {'city': 'Beijing', 'job': 'Engineer'}
+#也可以写成
+extra = {'city':'Beijing','job':'Engineer'}
+#person('Amy', 30, **extra)
+
+#5.命名关键字参数-希望限制关键字参数的名字
+def person_limit(name, age, *, city, job):
+    print(name, age, city, job)
+
+#person_limit('Michael', 30, city='Beijing', job='Engineer') #Michael 30 Beijing Engineer
+
+#如果函数定义中已经有了一个可变参数，后面跟着的命名关键字参数就不再需要一个特殊分隔符*了：
+def person_mix(name, age, *args, city, job):
+    print(name, age, args, city, job)
+
+#person_mix('Michael', 30, city='Beijing', job='Engineer') #Michael 30 () Beijing Engineer
+
+#参数定义的顺序必须是：必选参数、默认参数、可变参数、命名关键字参数和关键字参数。
+def f1(a, b, c=0, *args, **kw):
+    print('a =', a, 'b =', b, 'c =', c, 'args =', args, 'kw =', kw)
+
+def f2(a, b, c=0, *, d, **kw):
+    print('a =', a, 'b =', b, 'c =', c, 'd =', d, 'kw =', kw)
+
+#递归函数
+def fact(n):
+    if n==1:
+        return 1
+    return n * fact(n - 1)
+
+print(fact(5))
