@@ -45,4 +45,60 @@ import os
 [d for d in os.listdir('../')]  #['.git', '.idea', 'grammer', 'README.md']
 #把一个字符串中的所有字符串变成小写
 L3 =  ['Hello', 'World', 'IBM', 'Apple']
-print([s.lower() for s in L3 ])  #['hello', 'world', 'ibm', 'apple']
+[s.lower() for s in L3 ]  #['hello', 'world', 'ibm', 'apple']
+
+#生成器
+#一边循环一边计算的机制，称为生成器：generator
+#1. 把一个列表生成式的[]改成()，就创建了一个generator
+g = (x * x for x in range(10))
+g    #<generator object <genexpr> at 0x0000000002851F10>
+next(g)  #0
+next(g)  #1 --- generator保存的是算法，每次调用next(g)，就计算出g的下一个元素的值，直到计算到最后一个元素，没有更多的元素时，抛出StopIteration的错误。
+for n in (g):
+    #print(n) #迭代g
+    pass
+#2. yield -- generator的函数，在每次调用next()的时候执行，遇到yield语句返回，再次执行时从上次返回的yield语句处继续执行
+# 斐波拉契数列 -- 打印
+def fib(max):
+    n, a, b = 0, 0, 1
+    while n < max:
+        print(b)
+        a, b = b, a + b
+        n = n + 1
+    return 'done'
+
+#改写成generator
+def fib_1(max):
+    n, a, b = 0, 0, 1
+    while n < max:
+        yield b
+        a, b = b, a + b
+        n = n + 1
+    return 'done'
+
+f = fib_1(6) #f 是一个 generator
+
+while True:
+    try:
+        x = next(f)
+        print('f:', x)
+    except StopIteration as e:
+        print('Generator return value:', e.value) #但是用for循环调用generator时，发现拿不到generator的return语句的返回值。
+                                                  #如果想要拿到返回值，必须捕获StopIteration错误，返回值包含在StopIteration的value中
+        break
+
+#理解yield的用法
+def odd():
+    print('step 1')
+    yield 1
+    print('step 2')
+    yield(3)
+    print('step 3')
+    yield(5)
+o = odd()
+print(next(o))
+print(next(o))
+print(next(o))
+print(next(o))  # 报错
+
+#迭代器
