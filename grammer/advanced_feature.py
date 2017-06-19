@@ -81,10 +81,12 @@ f = fib_1(6) #f 是一个 generator
 while True:
     try:
         x = next(f)
-        print('f:', x)
+        #print('f:', x)
+        pass
     except StopIteration as e:
-        print('Generator return value:', e.value) #但是用for循环调用generator时，发现拿不到generator的return语句的返回值。
+        #print('Generator return value:', e.value) #但是用for循环调用generator时，发现拿不到generator的return语句的返回值。
                                                   #如果想要拿到返回值，必须捕获StopIteration错误，返回值包含在StopIteration的value中
+        pass
         break
 
 #理解yield的用法
@@ -96,9 +98,26 @@ def odd():
     print('step 3')
     yield(5)
 o = odd()
+'''print(next(o))
 print(next(o))
 print(next(o))
-print(next(o))
-print(next(o))  # 报错
+print(next(o))  # 报错'''
 
 #迭代器
+#我们已经知道，可以直接作用于for循环的数据类型有以下几种：
+#一类是集合数据类型，如list、tuple、dict、set、str等；
+#一类是generator，包括生成器和带yield的generator function。
+#这些可以直接作用于for循环的对象统称为可迭代对象：Iterable。
+#可以使用isinstance()判断一个对象是否是Iterable对象
+isinstance([], Iterable) # True
+#而生成器不但可以作用于for循环，还可以被next()函数不断调用并返回下一个值，直到最后抛出StopIteration错误表示无法继续返回下一个值了。
+#可以被next()函数调用并不断返回下一个值的对象称为迭代器：Iterator。
+#可以使用isinstance()判断一个对象是否是Iterator对象：
+from collections import Iterator
+isinstance((x for x in range(10)), Iterator) #True
+
+#生成器都是Iterator对象，但list、dict、str虽然是Iterable，却不是Iterator。
+#把list、dict、str等Iterable变成Iterator可以使用iter()函数：
+isinstance(iter([]),Iterator) #True
+isinstance([],Iterator) #False
+#可以把这个数据流看做是一个有序序列，但我们却不能提前知道序列的长度，只能不断通过next()函数实现按需计算下一个数据，所以Iterator的计算是惰性的，只有在需要返回下一个数据时它才会计算。
