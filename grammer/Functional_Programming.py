@@ -89,3 +89,135 @@ for n in primes():
         break
 
 #sorted
+sorted([36, 5, -12, 9, -21])    #[-21, -12, 5, 9, 36]
+sorted([36, 5, -12, 9, -21], key=abs)    #[5, 9, -12, -21, 36] 根据绝对值排序
+sorted(['bob', 'about', 'Zoo', 'Credit'], key=str.lower)  #['about', 'bob', 'Credit', 'Zoo']忽略大小写排序，
+                                                          #其实就是全部转为大写或小写再排序，默认按ASCII
+sorted(['bob', 'about', 'Zoo', 'Credit'], key=str.lower, reverse=True)#反向,['Zoo', 'Credit', 'bob', 'about']
+
+#返回函数
+#高阶函数除了可以接受函数作为参数外，还可以把函数作为结果值返回。
+#可变参数求和示例。正常：
+def calc_sum(*args):
+    ax = 0
+    for n in args:
+        ax = ax + n
+    return ax
+#返回求和函数
+def lazy_sum(*args):
+    def sum():
+        ax = 0
+        for n in args:
+            ax = ax + n
+        return ax
+    return sum
+#调用
+f = lazy_sum(1, 3, 5, 7, 9) #返回求和函数
+#print(f) #<function lazy_sum.<locals>.sum at 0x00000000028F9730>
+f() #25 调用f时才是求和
+
+#请再注意一点，当我们调用lazy_sum()时，每次调用都会返回一个新的函数，即使传入相同的参数：
+f1 = lazy_sum(1, 3, 5, 7, 9)
+f2 = lazy_sum(1, 3, 5, 7, 9)
+f1 == f2 #False
+
+#闭包
+#返回闭包时牢记的一点就是：返回函数不要引用任何循环变量，或者后续会发生变化的变量。
+def count():
+    fs = []
+    for i in range(1, 4):
+        def f():
+             return i*i
+        fs.append(f)
+    return fs
+
+# f1, f2, f3 = count()
+# print (f1(), f2(), f3()) # 9 9 9 原因就在于返回的函数引用了变量i，但它并非立刻执行。等到3个函数都返回时，它们所引用的变量i已经变成了3，因此最终结果为9
+
+def count():
+    def f(j):
+        def g():
+            return j*j
+        return g
+    fs = []
+    for i in range(1, 4):
+        fs.append(f(i)) # f(i)立刻被执行，因此i的当前值被传入f()
+    return fs
+#重新创建一个函数用于计算 i * i 会返回1 4 9
+
+#匿名函数 - lambda - 匿名函数有个限制，就是只能有一个表达式，不用写return，返回值就是该表达式的结果。
+def build(x, y):
+    return lambda: x * x + y * y
+
+list(map(lambda x: x * x, [1, 2, 3, 4, 5, 6, 7, 8, 9]))
+
+#装饰器 - 假设我们要增强now()函数的功能，比如，在函数调用前后自动打印日志，但又不希望修改now()函数的定义，这种在代码运行期间动态增加功能的方式，称之为“装饰器”（Decorator）
+def log(func):
+    def wrapper(*args, **kw):
+        print('call %s():' % func.__name__)
+        return func(*args, **kw)
+    return wrapper
+@log
+def now():
+    print('2017-06-20')
+
+# now()  #call now(): 2017-06-20
+# log 是一个decorator，所以接受一个函数作为参数，并返回一个函数。我们要借助Python的@语法，把decorator置于函数的定义处
+# 把@log放到now()函数的定义处，相当于执行了语句：now = log(now)
+# 由于log()是一个decorator，返回一个函数，所以，原来的now()函数仍然存在，只是现在同名的now变量指向了新的函数，
+# 于是调用now()将执行新函数，即在log()函数中返回的wrapper()函数。
+# wrapper()函数的参数定义是(*args, **kw)，因此，wrapper()函数可以接受任意参数的调用。
+# 在wrapper()函数内，首先打印日志，再紧接着调用原始函数。
+
+# 如果decorator本身需要传入参数，那就需要编写一个返回decorator的高阶函数，写出来会更复杂。比如，要自定义log的文本
+def log(text):
+    def decorator(func):
+        def wrapper(*args, **kw):
+            print('%s %s():' % (text, func.__name__))
+            return func(*args, **kw)
+        return wrapper
+    return decorator
+
+@log('execute')
+def now():
+    print('2015-3-25')
+# now() #execute now(): 2015-3-25
+now.__name__ #output: wrapper
+# 不需要编写wrapper.__name__ = func.__name__这样的代码，Python内置的functools.wraps就是干这个事的，
+# 所以，一个完整的decorator的写法如下
+
+import functools
+
+def log(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kw):
+        print('call %s():' % func.__name__)
+        return func(*args, **kw)
+    return wrapper
+# 或者针对带参数的decorator：
+def log(text):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kw):
+            print('%s %s():' % (text, func.__name__))
+            return func(*args, **kw)
+        return wrapper
+    return decorator
+
+# 在面向对象（OOP）的设计模式中，decorator被称为装饰模式。OOP的装饰模式需要通过继承和组合来实现，
+# 而Python除了能支持OOP的decorator外，直接从语法层次支持decorator。Python的decorator可以用函数实现，也可以用类实现。
+
+# 偏函数：functools.partial
+# 简单总结functools.partial的作用就是，把一个函数的某些参数给固定住（也就是设置默认值），返回一个新的函数，调用这个新函数会更简单。
+int2 = functools.partial(int, base=2) #实际上固定了int()函数的关键字参数base
+# 也就是 int2('10010') 相当于： kw = { 'base': 2 } int('10010', **kw)
+int2('1000000') #64
+# int() - 字符串转整型，默认10进制。base参数可以用于设置转换成8进制or2进制等。使用偏函数，相当于：
+def int2(x,base=2):
+    return int(x, base)
+
+max2 = functools.partial(max, 10)
+#实际上会把10作为*args的一部分自动加到左边，也就是：
+max2(5, 6, 7)   #output:10  相当于： args = (10, 5, 6, 7)  max(*args)
+
+
