@@ -117,4 +117,42 @@ type(abs)==types.BuiltinFunctionType
 type(lambda x: x)==types.LambdaType
 type((x for x in range(10)))==types.GeneratorType
 
-# ininstance()
+# ininstance() - 可用于判断class类型 - isinstance(d, Dog)
+isinstance(dog, Dog) # True
+isinstance([1, 2, 3], (list, tuple)) # 判断是否是list或者tuple
+
+# dir() - 获得一个对象的所有属性和方法
+dir('ABC') #很多
+
+# getattr()、setattr()以及hasattr()
+class MyObject(object):
+    def __init__(self):
+        self.x = 9
+
+    def power(self):
+        return self.x * self.x
+obj = MyObject()
+
+hasattr(obj, 'x') # True
+obj.x
+hasattr(obj, 'y') # False
+
+setattr(obj, 'y', 19)
+hasattr(obj, 'y') # True
+getattr(obj, 'y') # 19
+
+getattr(obj, 'z', 404)  # 获取属性'z'，如果不存在，返回默认值404
+
+#也可以获得对象的方法
+getattr(obj, 'power') # 获取属性'power'
+# <bound method MyObject.power of <__main__.MyObject object at 0x0000000002226D30>>
+# fn = getattr(obj, 'power') # 获取属性'power'并赋值到变量fn
+fn # fn指向obj.power ，<function fn at 0x0000000001E9AF28>
+fn() # None 调用fn()与调用obj.power()是一样的
+
+# 实例属性和类属性
+class Student(object):
+    name = 'Student' # 类属性
+
+s = Student
+s.score = 19 # 实例属性
