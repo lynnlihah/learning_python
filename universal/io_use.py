@@ -101,3 +101,105 @@ f.write('中文'.encode('utf-8'))
 f = BytesIO(b'\xe4\xb8\xad\xe6\x96\x87')
 f.read()
 # print(f.getvalue()) # b'\xe4\xb8\xad\xe6\x96\x87'
+
+
+# 操作文件和目录
+import os
+os.name # 操作系统类型 # nt - 代表Windows系统 posix - 代表 Linux、Unix 或 Mac OS X
+# os.uname() # 注意uname()函数在Windows上不提供，也就是说，os模块的某些函数是跟操作系统相关的。
+
+# 环境变量
+os.environ # 查看环境变量
+os.environ.get('PATH') # 或者指定环境变量
+
+# 目录操作
+os.path.abspath('.') # 查看当前目录的绝对路径
+d = os.path.join('e:/','testdir') # 可以自动正确处理不同操作系统下的目录分隔符
+# os.mkdir(d) # 创建目录
+# os.rmdir(d) # 删除目录
+os.path.split('c:/test/file.txt') # output: ('c:/test', 'file.txt')
+os.path.splitext('c:/test/file.txt') # output: ('c:/test/file', '.txt') 获取扩展名
+
+# 文件操作
+# os.rename('test.txt', 'test.py') # 对文件重命名
+# os.remove('test.py') # 删除文件
+
+# 复制文件：不在os模块，shutil模块提供了copyfile()的函数
+
+# 列出当前目录下的所有目录：
+[x for x in os.listdir('.') if os.path.isdir(x)]
+# 列出所有.py 文件
+[x for x in os.listdir('.') if os.path.isfile(x) and os.path.splitext(x)[1] == '.py']
+
+# 序列化
+# 把变量从内存中变成可存储或传输的过程称之为序列化，在Python中叫pickling，在其他语言中也被称之
+# 为serialization，marshalling，flattening等等，都是一个意思。
+# 序列化之后，就可以把序列化后的内容写入磁盘，或者通过网络传输到别的机器上。
+# 反过来，把变量内容从序列化的对象重新读到内存里称之为反序列化，即unpickling。
+
+import pickle
+# 例： 把一个对象序列化并写入文件：
+d = dict(name='Bob', age=20, score=99)
+pickle.dumps(d) # 把任意对象序列化成一个bytes
+# 或者用另一个方法pickle.dump()直接把对象序列化后写入一个file-like Object
+f = open('dump.txt', 'wb')
+pickle.dump(d, f)
+f.close()
+
+# 当我们要把对象从磁盘读到内存时，可以先把内容读到一个bytes，然后用pickle.loads()方法反序列化出对象，
+# 也可以直接用pickle.load()方法从一个file-like Object中直接反序列化出对象
+
+f = open('dump.txt', 'rb')
+d = pickle.load(f)
+f.close()
+d # {'name': 'Bob', 'age': 20, 'score': 99}
+
+# JSON
+# 在不同的编程语言之间传递对象，就必须把对象序列化为标准格式，比如XML，但更好的方法是序列化为
+# JSON，因为JSON表示出来就是一个字符串，可以被所有语言读取，也可以方便地存储到磁盘或者通过网络传输。
+# JSON不仅是标准格式，并且比XML更快，而且可以直接在Web页面中读取，非常方便。
+# JSON表示的对象就是标准的JavaScript语言的对象，JSON和Python内置的数据类型对应如下：
+# JSON类型	    Python类型
+# {}		    dict
+# []		    list
+# "string"	    str
+# 1234.56		int或float
+# true/false	True/False
+# null		    None
+import json
+d = dict(name='Bob', age=20, score=88)
+str = json.dumps(d)
+# str # {"name": "Bob", "age": 20, "score": 88} 标准json - 类似的，dump()方法可以直接把JSON写入一个file-like Object
+
+# 把json反序列化为Python对象，用loads或者对应的load()方法
+json.loads(str) # 由于JSON标准规定JSON编码是UTF-8，所以我们总是能正确地在Python的str与JSON的字符串之间转换。
+
+# json 进阶 - ython的dict对象可以直接序列化为JSON的{}，不过，很多时候，我们更喜欢用class表示对象，
+# 比如定义Student类，然后序列化
+# dumps 可选参数default就是把任意一个对象变成一个可序列为JSON的对象
+class Student(object):
+    def __init__(self, name, age, score):
+        self.name = name
+        self.age = age
+        self.score = score
+
+s = Student('Bob', 20, 88)
+
+def student2dict(std):
+    return{
+        'name': std.name,
+        'age': std.age,
+        'score': std.score
+    }
+
+json.dumps(s, default=student2dict) # {"name": "Bob", "age": 20, "score": 88}
+# 把任意class的实例变为dict
+json.dumps(s, default=lambda obj: obj.__dict__)
+
+# 同样的道理，如果我们要把JSON反序列化为一个Student对象实例，loads()方法首先转换出一个dict对象，
+# 然后，我们传入的object_hook函数负责把dict转换为Student实例：
+def dict2student(d):
+    return Student(d['name'], d['age'], d['score'])
+
+json_str = '{"age": 20, "score": 88, "name": "Bob"}'
+json.loads(json_str, object_hook=dict2student) # <__main__.Student object at 0x0000000002940668>
