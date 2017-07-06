@@ -185,3 +185,4 @@ Get C from queue.
 # 由于Windows没有fork调用，因此，multiprocessing需要“模拟”出fork的效果，父进程所有Python
 # 对象都必须通过pickle序列化再传到子进程去，所有，如果multiprocessing在Windows下调用失败了，
 # 要先考虑是不是pickle失败了。
+
